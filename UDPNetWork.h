@@ -11,6 +11,11 @@
 #include <iostream>
 #include <cstddef>
 #include <bitset>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 class UDPSocket
 {
@@ -26,7 +31,7 @@ public:
         close(sock);
     }
 
-    void SendTo(const std::string &address, unsigned short port, const char *buffer, int len, int flags = 0)
+    void SendTo(const std::string &address, unsigned short port, const void *buffer, int len, int flags = 0)
     {
         sockaddr_in add;
         add.sin_family = AF_INET;
@@ -34,6 +39,7 @@ public:
         // add.sin_addr.s_addr = inet_pton(AF_INET, "127.0.0.1", address.c_str());
         add.sin_port = htons(port);
         int ret = sendto(sock, buffer, len, flags, reinterpret_cast<sockaddr *>(&add), sizeof(add));
+        std::cout << "Buffer: " << buffer << std::endl;
         if (ret < 0)
             throw "sendto failed";
     }
@@ -55,27 +61,56 @@ public:
         buffer[ret] = 0;
         return from;
     }
-    void Bind(unsigned short port)
+    void Bind(const std::string &address, unsigned short port)
     {
         sockaddr_in add;
         add.sin_family = AF_INET;
-        add.sin_addr.s_addr = htonl(INADDR_ANY);
+        add.sin_addr.s_addr = inet_addr(address.c_str());
+        // add.sin_addr.s_addr = htonl(INADDR_ANY);
         add.sin_port = htons(port);
 
         int ret = bind(sock, reinterpret_cast<sockaddr *>(&add), sizeof(add));
         if (ret < 0)
             throw "Bind failed";
     }
-
-    std::bitset<64> convToBuffFrame(uint8_t header, uint8_t length, uint8_t syncNo, uint8_t reserved, uint8_t frameType, uint8_t data)
+    void Connect(const std::string &address, unsigned short port)
     {
-        uint8_t bufferFrame[8] = {header, length, syncNo, reserved, frameType, data};
-        uint64_t tempBuff;
-        for (auto it : bufferFrame)
+        sockaddr_in add;
+        add.sin_family = AF_INET;
+        add.sin_addr.s_addr = inet_addr(address.c_str());
+        // add.sin_addr.s_addr = htonl(INADDR_ANY);
+        add.sin_port = htons(port);
+
+        connect(sock, reinterpret_cast<sockaddr *>(&add), sizeof(add));
+        unsigned char buffer[10] = {0};
+        int valread = recv(sock, buffer, sizeof(buffer), 0);
+        for (auto b : buffer)
         {
-            tempBuff = (tempBuff << 8) + it;
+            std::cout << "Recv:" << std::hex << (int)b << ' ' << std::endl;
         }
-        return tempBuff;
+
+        int dataLength = buffer[1] + 1;
+        std::bitset<32> buffData[4];
+        std::bitset<32> buff;
+        unsigned long data;
+        for (int i = 0; i < 4; i++)
+        {
+            buffData[i] = buffer[dataLength - i];
+            std::cout << "binary " << i << ':' << buffData[i].to_string() << std::endl;
+        }
+        buff = buffData[0] << 24 | buffData[1] << 16 | buffData[2] << 8 | buffData[3] << 0;
+        std::cout << "Buff " << buff.to_string() << std::endl;
+        data = buff.to_ulong();
+        std::cout << "Number: " << std::to_string(data)<< std::endl;
+    }
+    std::vector<unsigned char> vectorConvData(int dataConv) // return type is struct demo
+    {
+        std::vector<unsigned char> unprocessdata = {};
+        for (int i = 0; i < 32; i += 8)
+        {
+            unprocessdata.push_back(dataConv >> i);
+        }
+        return unprocessdata;
     }
 
 private:

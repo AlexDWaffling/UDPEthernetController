@@ -1,19 +1,19 @@
 #!/bin/bash
 clear
-cd  /home/adw/Documents/ETH/EtherneProcess/Server
+cd Server
 rm -rf server.o
-g++ server.cpp -o server.o
+g++ -std=c++17 server.cpp -o server.o
 # g++ server.cpp -lstdc++ -pthread -o server.o
-cd /home/adw/Documents/ETH/EtherneProcess/Client
-rm -rf client.o
-g++ client.cpp -o client.o
-# g++ client.cpp -lstdc++ -pthread -o client.o
+# cd ../Client
+# rm -rf client.o
+# g++ -std=c++17 client.cpp -o client.o
+# # g++ client.cpp -lstdc++ -pthread -o client.o
 
-cd /home/adw/Documents/ETH/EtherneProcess/Client2
-rm -rf client.o
-g++ client.cpp -o client.o
+# cd ../Client2
+# rm -rf client.o
+# g++ -std=c++17 client.cpp -o client.o
 
-cd /home/adw/Documents/ETH/EtherneProcess/Controller
+cd ../Controller
 rm -rf controller.o
-g++ controller.cpp -o controller.o
+g++ -std=c++17 controller.cpp -o controller.o
 exit 0

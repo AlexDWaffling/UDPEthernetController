@@ -5,8 +5,8 @@
 
 int main()
 {
-  std::string IP = "127.0.0.1";
-  int PORT = 8886;
+  std::string HOST_IP = "192.168.0.10";
+  int PORT = 3000;
 
   try
   {
@@ -18,7 +18,7 @@ int main()
     {
       std::cout << "Enter data to transmit : " << std::endl;
       std::getline(std::cin, data);
-      Socket.SendTo(IP, 8886, data.c_str(), data.size());
+      Socket.SendTo(HOST_IP, PORT, data.c_str(), data.size());
     }
   }
   catch (std::exception &ex)

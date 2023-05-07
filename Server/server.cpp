@@ -1,27 +1,30 @@
-// C++ UDP Transmitter
+// // C++ UDP Transmitter
 
 #include "../UDPNetWork.h"
 #include "iostream"
-#include <string> 
-#include <locale> 
-#include <codecvt> 
+#include <string>
+#include <locale>
+#include <codecvt>
 #include <bitset>
+#include <vector>
+#include <algorithm>
 
+bool setState = false;
 int main()
 {
-    std::string IP = "127.0.0.1";
-    int PORT = 8886;
+    std::string IP_L = "192.168.0.2";
+    std::string IP_R = "192.168.0.7";
+    std::string HOST_IP = "192.168.0.10";
+
+    int MOTOR_PORT = 3001;
+    int PORT = 3000;
     try
     {
         UDPSocket Socket;
-        std::string data = Socket.convToBuffFrame(0xAA, 0x10, 0x01, 0x00, 0x31, 0x01).to_string();
-        std::string data2 = Socket.convToBuffFrame(0xAA, 0x10, 0x01, 0x00, 0x31, 0x01).to_string();
-        std::string data3 = "Motor 1 has been stopped";
-        std::string data4 = "Motor 2 has been stopped";
+        std::vector<unsigned char> unprocessdata = {};
         std::string request = "\b";
         char buffer[100];
-        int delay_time = 0;
-        Socket.Bind(PORT);
+        Socket.Bind(HOST_IP, PORT);
 
         while (1)
         {
@@ -30,20 +33,63 @@ int main()
             sockaddr_in add = Socket.RecvFrom(buffer, sizeof(buffer));
             std::string request(buffer);
             std::cout << "Processing - " << request << std::endl;
-            for(int i = 0; i < 110; i+=10){
-                std::cout << "| "<< i <<"% |" << std::endl;
+            for (int i = 0; i < 110; i += 10)
+            {
+                std::cout << "| " << i << "% |" << std::endl;
             }
             std::cout << "Done - " << request << std::endl;
+            // if(std::stoi(request)!= 0){
+            //     int number = std::stoi(request);
+            //     Socket.toByte(number);
+            // }
             if (request == "enable motor")
             {
-                Socket.SendTo(IP, 8888, data.c_str(), data.size());
-                Socket.SendTo(IP, 8889, data2.c_str(), data2.size());
+                unprocessdata = {0xAA, 0x04, 0x01, 0x00, 0x2A, 0x01};
+                setState = true;
             }
-            if (request == "disable motor")
+            else if (request == "disable motor")
             {
-                Socket.SendTo(IP, 8888, data3.c_str(), data.size());
-                Socket.SendTo(IP, 8889, data4.c_str(), data2.size());
+                unprocessdata = {0xAA, 0x04, 0x01, 0x00, 0x2A, 0x00};
+                setState = true;
             }
+            else if (request == "run")
+            {
+                // unprocessdata = {0xAA, 0x08, 0x02, 0x00, 0x37, 0x70, 0x11, 0x01, 0x00, 0x01};
+                // unprocessdata = {0xAA, 0x08, 0x02, 0x00, 0x37, 112, 17, 1, 0, 1};
+                unprocessdata = {0xAA, 0x08, 0x02, 0x00, 0x37};
+                std::vector<unsigned char> speed_pps = Socket.vectorConvData(70000);
+                unprocessdata.insert(unprocessdata.end(), speed_pps.begin(), speed_pps.end());
+                unprocessdata.push_back(1);
+                setState = true;
+            }
+            else if (request == "stop")
+            {
+                unprocessdata = {0xAA, 0x03, 0x02, 0x00, 0x31};
+                setState = true;
+            }
+            else if (request == "pos")
+            {
+                unprocessdata = {0xAA, 0x03, 0x02, 0x00, 0x53};
+                setState = true;
+            }
+
+            /* Process Data */
+            auto size = unprocessdata.size();
+            unsigned char bytes[unprocessdata.size()];
+            std::copy(unprocessdata.begin(), unprocessdata.end(), bytes);
+
+            for (auto b : unprocessdata){
+                std::cout << std::hex << (int)b << ' ';
+                std::cout << std::endl;
+            }
+
+            if (setState == true)
+            {
+                Socket.SendTo(IP_L, MOTOR_PORT, bytes, sizeof(bytes));
+                // Socket.SendTo(IP_R, MOTOR_PORT, bytes, sizeof(bytes));
+                setState = false;
+            }
+            Socket.Connect(IP_L, MOTOR_PORT);
         }
     }
     catch (std::exception &ex)

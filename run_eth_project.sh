@@ -1,12 +1,12 @@
 #!/bin/bash
 
 clear
-cd /home/adw/Documents/ETH/EtherneProcess/Server
+cd Server
 gnome-terminal
-cd /home/adw/Documents/ETH/EtherneProcess/Client
+cd ../Client
 gnome-terminal
-cd /home/adw/Documents/ETH/EtherneProcess/Client2
+cd ../Client2
 gnome-terminal
-cd /home/adw/Documents/ETH/EtherneProcess/Controller
+cd ../Controller
 gnome-terminal
 exit 0
