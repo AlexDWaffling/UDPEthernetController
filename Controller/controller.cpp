@@ -1,6 +1,8 @@
 // C++ UDP Transmitter
 
 #include "../UDPNetWork.h"
+#include "../UDPNetWork.cpp"
+
 #include "iostream"
 
 int main()
