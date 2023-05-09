@@ -46,7 +46,7 @@ private:
     int port = 3001;
     std::string ip_left_motor = "192.168.0.2";
     std::string ip_right_motor = "192.168.0.7";
-    bool flag_run_s1v2;
+    bool flag_run_s1v1;
     bool flag_run_s1v2;
     bool flag_stop;
 };
