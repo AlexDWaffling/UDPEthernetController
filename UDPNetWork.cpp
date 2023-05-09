@@ -98,10 +98,10 @@ unsigned long UDPSocket::Connect(const std::string &address, unsigned short port
     for (int i = 0; i < 4; i++)
     {
         buffData[i] = buffer[dataLength - i];
-        std::cout << "binary " << i << ':' << buffData[i].to_string() << std::endl;
+        // std::cout << "binary " << i << ':' << buffData[i].to_string() << std::endl;
     }
     buff = buffData[0] << 24 | buffData[1] << 16 | buffData[2] << 8 | buffData[3] << 0;
-    std::cout << "Buff " << buff.to_string() << std::endl;
+    // std::cout << "Buff " << buff.to_string() << std::endl;
     data = buff.to_ulong();
     std::cout << "Number: " << std::to_string(data) << std::endl;
     return data;

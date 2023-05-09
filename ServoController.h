@@ -38,6 +38,7 @@
 #define MoveVelocity            0x37
 #define VelocityOverride        0x3A
 #define GetActualPos            0x53
+#define ClearPosition           0x56
 
 class ServoController
 {
@@ -47,13 +48,13 @@ public:
 
     void FAS_ServoEnable(std::string ipAddr, int port, bool status);
     void FAS_ServoAlarmReset(std::string ipAddr, int port);
-    unsigned long FAS_MoveStop(std::string ipAddr, int port);
-    unsigned long FAS_EmergencyStop(std::string ipAddr, int port);
-    unsigned long FAS_MoveSingleAxisAbsPos(std::string ipAddr, int port, int32_t posVal, uint32_t speed_pps);
-    unsigned long FAS_MoveVelocity(std::string ipAddr, int port, uint32_t speed_pps, bool jog_dir);
+    void FAS_MoveStop(std::string ipAddr, int port);
+    void FAS_EmergencyStop(std::string ipAddr, int port);
+    void FAS_MoveSingleAxisAbsPos(std::string ipAddr, int port, int32_t posVal, uint32_t speed_pps);
+    void FAS_MoveVelocity(std::string ipAddr, int port, uint32_t speed_pps, bool jog_dir);
+    void FAS_VelocityOverride(std::string ipAddr, int port, uint32_t new_speed_pps);
+    void FAS_ClearPosition(std::string ipAddr, int port);
     unsigned long FAS_GetActualPos(std::string ipAddr, int port);
-    unsigned long FAS_VelocityOverride(std::string ipAddr, int port, uint32_t new_speed_pps);
-
 private:
     unsigned char header = 0xAA;
     unsigned char reserved = 0x00;

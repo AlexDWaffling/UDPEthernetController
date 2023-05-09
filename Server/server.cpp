@@ -37,10 +37,10 @@ int main()
             sockaddr_in add = Socket.RecvFrom(buffer, sizeof(buffer));
             std::string request(buffer);
             std::cout << "Processing - " << request << std::endl;
-            for (int i = 0; i < 110; i += 10)
-            {
-                std::cout << "| " << i << "% |" << std::endl;
-            }
+            // for (int i = 0; i < 110; i += 10)
+            // {
+            //     std::cout << "| " << i << "% |" << std::endl;
+            // }
             std::cout << "Done - " << request << std::endl;
 
             if (request == "enable")
@@ -77,6 +77,7 @@ int main()
                 //     unprocessdata = {0xAA, 0x03, 0x02, 0x00, 0x53};
                 //     setState = true;
                 controller.FAS_GetActualPos(IP_L, MOTOR_PORT);
+                // std::cout << std::to_string(controller.FAS_GetActualPos(IP_L, MOTOR_PORT)) << std::endl;
             }
 
             // /* Process Data */

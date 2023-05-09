@@ -51,7 +51,7 @@ void ServoController::FAS_ServoAlarmReset(std::string ipAddr, int port)
 
     Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
 }
-unsigned long ServoController::FAS_MoveStop(std::string ipAddr, int port)
+void ServoController::FAS_MoveStop(std::string ipAddr, int port)
 {
     /* Update Data */
     length = 0x03;
@@ -64,7 +64,7 @@ unsigned long ServoController::FAS_MoveStop(std::string ipAddr, int port)
 
     Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
 }
-unsigned long ServoController::FAS_EmergencyStop(std::string ipAddr, int port)
+void ServoController::FAS_EmergencyStop(std::string ipAddr, int port)
 {
     /* Update Data */
     length = 0x03;
@@ -77,7 +77,7 @@ unsigned long ServoController::FAS_EmergencyStop(std::string ipAddr, int port)
 
     Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
 }
-unsigned long ServoController::FAS_MoveSingleAxisAbsPos(std::string ipAddr, int port, int32_t posVal, uint32_t speed_pps)
+void ServoController::FAS_MoveSingleAxisAbsPos(std::string ipAddr, int port, int32_t posVal, uint32_t speed_pps)
 {
     /* Update Data */
     length = 0x0B;
@@ -94,7 +94,7 @@ unsigned long ServoController::FAS_MoveSingleAxisAbsPos(std::string ipAddr, int 
 
     Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
 }
-unsigned long ServoController::FAS_MoveVelocity(std::string ipAddr, int port, uint32_t speed_pps, bool jog_dir)
+void ServoController::FAS_MoveVelocity(std::string ipAddr, int port, uint32_t speed_pps, bool jog_dir)
 {
     /* Update Data */
     length = 0x08;
@@ -130,18 +130,34 @@ unsigned long ServoController::FAS_GetActualPos(std::string ipAddr, int port)
         {
             Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
             unsigned long data = Socket.Connect(ipAddr, port);
+            // std::cout << "Number: " << std::to_string(data) << std::endl;
             begin = end;
             return data;
         }
     }
 }
-unsigned long ServoController::FAS_VelocityOverride(std::string ipAddr, int port, uint32_t new_speed_pps)
-{ /* Update Data */
+void ServoController::FAS_VelocityOverride(std::string ipAddr, int port, uint32_t new_speed_pps)
+{
+    /* Update Data */
     length = 0x07;
     frameType = VelocityOverride;
     std::vector<unsigned char> unprocessdata = {header, length, syncNo, reserved, frameType};
     std::vector<unsigned char> speed = Socket.VectorConvData(new_speed_pps);
     unprocessdata.insert(unprocessdata.end(), speed.begin(), speed.end());
+    /* Process Data */
+    auto size = unprocessdata.size();
+    unsigned char bytes[unprocessdata.size()];
+    std::copy(unprocessdata.begin(), unprocessdata.end(), bytes);
+
+    Socket.SendTo(ipAddr, port, bytes, sizeof(bytes));
+}
+
+void ServoController::FAS_ClearPosition(std::string ipAddr, int port)
+{
+     /* Update Data */
+    length = 0x03;
+    frameType = ClearPosition;
+    std::vector<unsigned char> unprocessdata = {header, length, syncNo, reserved, frameType};
     /* Process Data */
     auto size = unprocessdata.size();
     unsigned char bytes[unprocessdata.size()];
